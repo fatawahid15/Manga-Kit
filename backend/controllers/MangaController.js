@@ -236,6 +236,16 @@ class MangaController {
       console.log(error);
     }
   }
+
+  static async deleteBookmark(req, res, next){
+    try {
+      const {mangaId} = req.params
+
+      console.log(mangaId);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }
 
 module.exports = MangaController;
