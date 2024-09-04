@@ -93,9 +93,9 @@ class ProfileController {
       const imageInBase64 = req.file.buffer.toString("base64");
       console.log(req.file);
       cloudinary.config({
-        cloud_name: "drpiizusa",
-        api_key: "523846959131314",
-        api_secret: "Ivi_YSxbS-t09yt9ANZ23iOyuMc",
+        cloud_name: process.env.CLOUD_NAME,
+        api_key: process.env.API_KEY,
+        api_secret: process.env.API_SECRET,
       });
 
       const result = await cloudinary.uploader.upload(
