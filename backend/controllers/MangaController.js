@@ -8,10 +8,10 @@ class MangaController {
   static async getManga(req, res, next) {
     try {
       const searchQuery = req.query.search || "";
-      const limit = parseInt(req.query.limit) || 10; 
-      let page = parseInt(req.query.page) || 1;    
-      const offset = (page - 1) * limit;      
-
+      const limit = parseInt(req.query.limit) || 10;
+      let page = parseInt(req.query.page) || 1;
+      const offset = (page - 1) * limit;
+  
       const response = await axios.get(`${baseUrl}/manga`, {
         params: {
           title: searchQuery,
@@ -31,7 +31,7 @@ class MangaController {
         );
         const coverFilename = coverArt ? coverArt.attributes.fileName : null;
         const coverUrl = coverFilename
-          ? `${coverBaseUrl}/${manga.id}/${coverFilename}`
+          ? `${coverBaseUrl}/${manga.id}/${coverFilename}.256.jpg` // Using lower resolution (256px width)
           : null;
   
         return {
@@ -39,11 +39,11 @@ class MangaController {
           title: manga.attributes.title.en || "Title not available",
           description:
             manga.attributes.description.en || "No description available.",
-          coverUrl: coverUrl,
+          coverUrl: coverUrl, // Lower resolution cover URL
         };
       });
   
-      const totalResults = response.data.total; 
+      const totalResults = response.data.total;
       const totalPages = Math.ceil(totalResults / limit);
   
       res.status(200).json({
@@ -59,6 +59,7 @@ class MangaController {
       next(error);
     }
   }
+  
   
 
   static async getBookmarkedMangas(req, res, next) {
@@ -150,27 +151,64 @@ class MangaController {
   static async getMangaById(req, res, next) {
     try {
       const { mangaId } = req.params;
-
+  
+      // Fetch manga data with cover art and necessary attributes
       const response = await axios.get(`${baseUrl}/manga/${mangaId}`, {
         params: {
-          includes: ["cover_art"],
+          includes: ["cover_art", "tag"], // includes cover art and genres (tags)
         },
         headers: {
           "User-Agent": "Mozilla/5.0",
         },
       });
-
+  
       const mangaData = response.data.data;
-
-      if(!mangaData){
-        throw {name: 'NMF'}
+  
+      if (!mangaData) {
+        throw { name: 'NMF' };
       }
-
-      res.status(200).json({ manga: mangaData });
+  
+      // Fetching cover art with data-saver option (lower resolution)
+      const coverArt = mangaData.relationships.find(
+        (rel) => rel.type === "cover_art"
+      );
+      const coverFilename = coverArt ? coverArt.attributes.fileName : null;
+      const coverUrl = coverFilename
+        ? `${coverBaseUrl}/${mangaData.id}/${coverFilename}.256.jpg`  // Using .256.jpg for lower resolution
+        : null;
+  
+      // Extract title and alternative titles
+      const title = mangaData.attributes.title.en || "Title not available";
+      const altTitle = mangaData.attributes.altTitles.length > 0
+        ? mangaData.attributes.altTitles.map((alt) => alt.en || "N/A").join(", ")
+        : "No alternative titles";
+  
+      // Extract genres (tags)
+      const genres = mangaData.attributes.tags
+        .filter((tag) => tag.attributes.group === "genre")
+        .map((tag) => tag.attributes.name.en);
+  
+      // Extract rating and description/synopsis
+      const rating = mangaData.attributes.contentRating || "Not Rated";
+      const description = mangaData.attributes.description.en || "No description available.";
+  
+      // Respond with only the specific fields
+      res.status(200).json({
+        manga: {
+          id: mangaData.id,
+          title,
+          altTitle,
+          genres,
+          rating,
+          description,
+          coverImage: coverUrl,
+        },
+      });
     } catch (error) {
-      next(error)
+      next(error);
     }
   }
+  
 
   static async getChaptersByMangaId(req, res, next) {
     try {
