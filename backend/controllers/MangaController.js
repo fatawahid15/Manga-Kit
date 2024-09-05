@@ -64,17 +64,21 @@ class MangaController {
 
   static async getBookmarkedMangas(req, res, next) {
     try {
+      // Fetch the bookmarked mangas for the logged-in user
       const bookmarks = await Bookmark.findAll({
         where: { UserId: req.userLoginData.id },
         attributes: ["bookmark"],
       });
-
+  
+      // Extract the bookmarked manga IDs
       const bookmarkedMangaIds = bookmarks.map((b) => b.dataValues.bookmark);
-
+  
+      // If no bookmarks found, throw an error
       if (bookmarkedMangaIds.length === 0) {
-        throw { name: "nullBookmark" }
+        throw { name: "nullBookmark" };
       }
-
+  
+      // Make the API request to get the bookmarked mangas
       const response = await axios.get(`${baseUrl}/manga`, {
         params: {
           ids: bookmarkedMangaIds,
@@ -84,30 +88,36 @@ class MangaController {
           "User-Agent": "Mozilla/5.0",
         },
       });
-
+  
+      // Map through the response to build the manga list
       const mangaList = response.data.data.map((manga) => {
+        // Find the cover art relationship and extract the filename
         const coverArt = manga.relationships.find(
           (rel) => rel.type === "cover_art"
         );
         const coverFilename = coverArt ? coverArt.attributes.fileName : null;
+        
+        // Use the same low-resolution cover art URL (256px width) as in getManga
         const coverUrl = coverFilename
-          ? `${coverBaseUrl}/${manga.id}/${coverFilename}`
+          ? `${coverBaseUrl}/${manga.id}/${coverFilename}.256.jpg`
           : null;
-
+  
         return {
           id: manga.id,
           title: manga.attributes.title.en || "Title not available",
           description:
             manga.attributes.description.en || "No description available.",
-          coverUrl: coverUrl,
+          coverUrl: coverUrl, // Lower resolution cover URL
         };
       });
-
+  
+      // Send the response with the manga list
       res.status(200).json({ mangas: mangaList });
     } catch (error) {
-      next(error)
+      next(error);
     }
   }
+  
 
   static async addBookmark(req, res, next) {
     try {
