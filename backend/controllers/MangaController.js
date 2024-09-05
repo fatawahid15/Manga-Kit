@@ -1,6 +1,5 @@
 const axios = require("axios");
 const { User, Profile, Bookmark } = require("../models/index");
-const { response } = require("express");
 const baseUrl = "https://api.mangadex.org";
 const coverBaseUrl = "https://uploads.mangadex.org/covers";
 const pageBaseUrl = "https://api.mangadex.org/at-home/server";

@@ -72,7 +72,7 @@ function errorHandler(error, req, res, next){
         message
     })
 
-    console.log(error.response);
+    console.log(error);
 }
 
 module.exports = errorHandler

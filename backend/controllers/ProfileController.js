@@ -1,7 +1,6 @@
 const { Op } = require("sequelize");
 const { User, Profile, Bookmark } = require("../models/index");
 const cloudinary = require("cloudinary").v2;
-const groq = require('groq-sdk')
 
 class ProfileController {
   static async getOwnProfile(req, res, next) {
@@ -151,34 +150,6 @@ class ProfileController {
     }
   }
 
-
-  static async AiPrompt(req, res, next) {
-    try {
-      const { question } = req.body;
-
-      console.log(question);
-
-      const groqClient = new groq({ apiKey: process.env.GROQ_API
-    });
-
-      const chatCompletion = await groqClient.chat.completions.create({
-        messages: [
-          {
-            role: 'user',
-            content: question,
-          },
-        ],
-        model: 'llama3-8b-8192',  
-      });
-
-      const answer = chatCompletion.choices[0]?.message.content || "No response from AI";
-
-      res.status(200).json({ answer });
-    } catch (error) {
-      console.error("Error in AI prompt:", error.message);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  }
 }
 
 module.exports = ProfileController;
