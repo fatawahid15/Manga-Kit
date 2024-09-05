@@ -5,6 +5,11 @@ const initialState = {
   manga: [],
   loading: false,
   error: "",
+  pagination: {
+    currentPage: 1,
+    totalPages: 1,
+    limit: 20,
+  },
 };
 
 export const mangaSlice = createSlice({
@@ -18,7 +23,8 @@ export const mangaSlice = createSlice({
     },
     successState(state, action) {
       state.loading = false;
-      state.manga = action.payload;
+      state.manga = action.payload.mangas;
+      state.pagination = action.payload.pagination;
       state.error = "";
     },
     failState(state, action) {
@@ -26,29 +32,38 @@ export const mangaSlice = createSlice({
       state.manga = [];
       state.error = action.payload;
     },
+    setPage(state, action) {
+      state.pagination.currentPage = action.payload;
+    },
   },
 });
 
-export const { pendingState, successState, failState } = mangaSlice.actions;
+export const { pendingState, sucpcessState, failState, setPage } =
+  mangaSlice.actions;
 
-// Async thunk to fetch manga with optional search query
-export const fetchMangaAsync = (searchQuery = "") => async (dispatch) => {
-  try {
-    dispatch(pendingState());
+export const fetchMangaAsync =
+  (searchQuery = "", page = 1) =>
+  async (dispatch) => {
+    try {
+      dispatch(pendingState());
 
-    const { data } = await axios.get("http://localhost:3000/pub/manga", {
-      params: {
-        limit: 28,  // or whatever limit you prefer
-        search: searchQuery,  // Send the search query as a parameter
-      },
-    });
+      const { data } = await axios.get(
+        "https://mangakit.daseas.cloud/pub/manga/",
+        {
+          params: {
+            limit: 21,
+            page,
+            search: searchQuery,
+          },
+        }
+      );
 
-    console.log(data.mangas);
-
-    dispatch(successState(data.mangas));
-  } catch (error) {
-    dispatch(failState(error.message));
-  }
-};
+      dispatch(
+        successState({ mangas: data.mangas, pagination: data.pagination })
+      );
+    } catch (error) {
+      dispatch(failState(error.message));
+    }
+  };
 
 export default mangaSlice.reducer;
