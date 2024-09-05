@@ -38,7 +38,7 @@ export const mangaSlice = createSlice({
   },
 });
 
-export const { pendingState, sucpcessState, failState, setPage } =
+export const { pendingState, successState, failState, setPage } =
   mangaSlice.actions;
 
 export const fetchMangaAsync =
@@ -57,6 +57,7 @@ export const fetchMangaAsync =
           },
         }
       );
+
 
       dispatch(
         successState({ mangas: data.mangas, pagination: data.pagination })
