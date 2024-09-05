@@ -6,7 +6,7 @@ const { hash } = require("../helpers/bcrypt");
 class AuthController {
   static async register(req, res, next) {
     try {
-      const { email, password } = req.body;
+      const { email, password } = req.body
 
       await User.create({
         email,
@@ -26,7 +26,7 @@ class AuthController {
         message: "success create new user",
       });
     } catch (error) {
-      console.log(error);
+      next(error)
     }
   }
 
@@ -64,7 +64,7 @@ class AuthController {
         access_token,
       });
     } catch (error) {
-      console.log(error);
+      next(error)
     }
   }
 }

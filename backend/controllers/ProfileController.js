@@ -1,6 +1,7 @@
 const { Op } = require("sequelize");
 const { User, Profile, Bookmark } = require("../models/index");
 const cloudinary = require("cloudinary").v2;
+const groq = require('groq-sdk')
 
 class ProfileController {
   static async getOwnProfile(req, res, next) {
@@ -13,7 +14,8 @@ class ProfileController {
         profile,
       });
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching profile:", error.message);
+      res.status(500).json({ message: "Internal server error" });
     }
   }
 
@@ -34,21 +36,16 @@ class ProfileController {
         profile,
       });
     } catch (error) {
-      console.log(error);
+      console.error("Error updating profile:", error.message);
+      res.status(500).json({ message: "Internal server error" });
     }
   }
 
   static async deleteBio(req, res, next) {
     try {
       await Profile.update(
-        {
-          bio: null,
-        },
-        {
-          where: {
-            UserId: req.userLoginData.id,
-          },
-        }
+        { bio: null },
+        { where: { UserId: req.userLoginData.id } }
       );
 
       const profile = await Profile.findOne({
@@ -59,21 +56,16 @@ class ProfileController {
         profile,
       });
     } catch (error) {
-      console.log(error);
+      console.error("Error deleting bio:", error.message);
+      res.status(500).json({ message: "Internal server error" });
     }
   }
 
   static async deleteImg(req, res, next) {
     try {
       await Profile.update(
-        {
-          imgUrl: null,
-        },
-        {
-          where: {
-            UserId: req.userLoginData.id,
-          },
-        }
+        { imgUrl: null },
+        { where: { UserId: req.userLoginData.id } }
       );
 
       const profile = await Profile.findOne({
@@ -84,14 +76,15 @@ class ProfileController {
         profile,
       });
     } catch (error) {
-      console.log(error);
+      console.error("Error deleting image:", error.message);
+      res.status(500).json({ message: "Internal server error" });
     }
   }
 
   static async updateProfileImg(req, res, next) {
     try {
       const imageInBase64 = req.file.buffer.toString("base64");
-      console.log(req.file);
+
       cloudinary.config({
         cloud_name: process.env.CLOUD_NAME,
         api_key: process.env.API_KEY,
@@ -103,67 +96,89 @@ class ProfileController {
       );
 
       await Profile.update(
-        {
-          imgUrl: result.url,
-        },
-        {
-          where: {
-            UserId: req.userLoginData.id,
-          },
-        }
+        { imgUrl: result.url },
+        { where: { UserId: req.userLoginData.id } }
       );
 
-      let profile = await Profile.findOne({
-        where: {
-          UserId: req.userLoginData.id,
-        },
+      const profile = await Profile.findOne({
+        where: { UserId: req.userLoginData.id },
       });
 
       res.status(200).json({
-        profile
-      })
+        profile,
+      });
     } catch (error) {
-      console.log(error);
+      console.error("Error updating profile image:", error.message);
+      res.status(500).json({ message: "Internal server error" });
     }
   }
 
-  static async getProfileId(req, res, next){
+  static async getProfileId(req, res, next) {
     try {
-        const {id} = req.params
+      const { id } = req.params;
 
-        const profile = await Profile.findByPk(id)
+      const profile = await Profile.findByPk(id);
 
-        res.status(200).json({
-            profile
-        })
+      res.status(200).json({
+        profile,
+      });
     } catch (error) {
-        console.log(error);
+      console.error("Error fetching profile by ID:", error.message);
+      res.status(500).json({ message: "Internal server error" });
     }
   }
 
   static async getAllProfile(req, res, next) {
     try {
-        const { search } = req.query;
+      const { search } = req.query;
 
-        const query = {};
+      const query = {};
 
-        // If a search query is provided, filter by username
-        if (search) {
-            query.where = {
-                username: {
-                    [Op.like]: `%${search}%` // Search for usernames that contain the search string
-                }
-            };
-        }
+      if (search) {
+        query.where = {
+          username: {
+            [Op.like]: `%${search}%`,
+          },
+        };
+      }
 
-        const profiles = await Profile.findAll(query);
+      const profiles = await Profile.findAll(query);
 
-        res.status(200).json({ profiles });
+      res.status(200).json({ profiles });
     } catch (error) {
-        console.error("Error fetching profiles:", error.message);
-        res.status(500).json({ message: "Internal server error" });
+      console.error("Error fetching profiles:", error.message);
+      res.status(500).json({ message: "Internal server error" });
     }
-}
+  }
+
+
+  static async AiPrompt(req, res, next) {
+    try {
+      const { question } = req.body;
+
+      console.log(question);
+
+      const groqClient = new groq({ apiKey: process.env.GROQ_API
+    });
+
+      const chatCompletion = await groqClient.chat.completions.create({
+        messages: [
+          {
+            role: 'user',
+            content: question,
+          },
+        ],
+        model: 'llama3-8b-8192',  
+      });
+
+      const answer = chatCompletion.choices[0]?.message.content || "No response from AI";
+
+      res.status(200).json({ answer });
+    } catch (error) {
+      console.error("Error in AI prompt:", error.message);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  }
 }
 
 module.exports = ProfileController;

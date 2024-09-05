@@ -1,8 +1,9 @@
 const express = require('express')
-const { getOwnProfile, updateOwnProfile, deleteBio, deleteImg, updateProfileImg, getProfileId, getAllProfile } = require('../controllers/ProfileController')
+const { getOwnProfile, updateOwnProfile, deleteBio, deleteImg, updateProfileImg, getProfileId, getAllProfile, AiPrompt } = require('../controllers/ProfileController')
 const router = express.Router()
 const upload = require('../helpers/multer')
 
+router.post('/chat' , AiPrompt)
 router.get('/profile', getAllProfile)
 router.get('/profile/me', getOwnProfile)
 router.put('/profile/me', updateOwnProfile)

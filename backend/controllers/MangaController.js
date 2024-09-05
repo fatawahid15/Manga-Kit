@@ -8,19 +8,24 @@ const pageBaseUrl = "https://api.mangadex.org/at-home/server";
 class MangaController {
   static async getManga(req, res, next) {
     try {
-      const searchQuery = req.query.title || "";
+      const searchQuery = req.query.search || "";
+      const limit = parseInt(req.query.limit) || 10; 
+      let page = parseInt(req.query.page) || 1;    
+      const offset = (page - 1) * limit;      
 
       const response = await axios.get(`${baseUrl}/manga`, {
         params: {
           title: searchQuery,
-          limit: 10,
+          limit,
+          offset,
+          contentRating: ['safe'],
           includes: ["cover_art"],
         },
         headers: {
           "User-Agent": "Mozilla/5.0",
         },
       });
-
+  
       const mangaList = response.data.data.map((manga) => {
         const coverArt = manga.relationships.find(
           (rel) => rel.type === "cover_art"
@@ -29,7 +34,7 @@ class MangaController {
         const coverUrl = coverFilename
           ? `${coverBaseUrl}/${manga.id}/${coverFilename}`
           : null;
-
+  
         return {
           id: manga.id,
           title: manga.attributes.title.en || "Title not available",
@@ -38,13 +43,24 @@ class MangaController {
           coverUrl: coverUrl,
         };
       });
-
-      res.status(200).json({ mangas: mangaList });
+  
+      const totalResults = response.data.total; 
+      const totalPages = Math.ceil(totalResults / limit);
+  
+      res.status(200).json({
+        mangas: mangaList,
+        pagination: {
+          totalResults,
+          currentPage: page,
+          totalPages,
+          limit,
+        },
+      });
     } catch (error) {
-      console.error("Error fetching manga:", error.message);
-      res.status(500).json({ message: "Internal server error" });
+      next(error);
     }
   }
+  
 
   static async getBookmarkedMangas(req, res, next) {
     try {
@@ -56,9 +72,7 @@ class MangaController {
       const bookmarkedMangaIds = bookmarks.map((b) => b.dataValues.bookmark);
 
       if (bookmarkedMangaIds.length === 0) {
-        return res
-          .status(400)
-          .json({ message: "No bookmarked manga IDs found for this user." });
+        throw { name: "nullBookmark" }
       }
 
       const response = await axios.get(`${baseUrl}/manga`, {
@@ -71,8 +85,6 @@ class MangaController {
         },
       });
 
-      console.log(response);
-
       const mangaList = response.data.data.map((manga) => {
         const coverArt = manga.relationships.find(
           (rel) => rel.type === "cover_art"
@@ -93,8 +105,7 @@ class MangaController {
 
       res.status(200).json({ mangas: mangaList });
     } catch (error) {
-      console.error("Error fetching bookmarked mangas:", error.message);
-      res.status(500).json({ message: "Internal server error" });
+      next(error)
     }
   }
 
@@ -103,11 +114,11 @@ class MangaController {
       const { mangaId } = req.body;
 
       const checkBookMark = await Bookmark.findOne({
-        where: { bookmark: mangaId },
+        where: { bookmark: mangaId, UserId:  req.userLoginData.id},
       });
 
       if (checkBookMark) {
-        throw { name: "Already Exist" };
+        throw { name: "AE" };
       }
 
       await Bookmark.create({
@@ -133,7 +144,7 @@ class MangaController {
         user,
       });
     } catch (error) {
-      console.log(error);
+      next(error)
     }
   }
 
@@ -147,14 +158,15 @@ class MangaController {
         },
       });
 
-      console.log(response.data);
-
       const mangaData = response.data.data;
+
+      if(!mangaData){
+        throw {name: 'NMF'}
+      }
 
       res.status(200).json({ manga: mangaData });
     } catch (error) {
-      console.error("Error fetching manga:", error.message);
-      res.status(500).json({ message: "Internal server error" });
+      next(error)
     }
   }
 
@@ -207,8 +219,7 @@ class MangaController {
         chapters,
       });
     } catch (error) {
-      console.error("Error fetching chapters:", error.message);
-      res.status(500).json({ message: "Internal server error" });
+      next(error)
     }
   }
 
@@ -233,7 +244,7 @@ class MangaController {
             imgUrls
         })
     } catch (error) {
-      console.log(error);
+      next(error)
     }
   }
 
@@ -242,8 +253,27 @@ class MangaController {
       const {mangaId} = req.params
 
       console.log(mangaId);
+
+      const bookmark = await Bookmark.findOne({
+        where: {UserId: req.userLoginData.id}
+      })
+
+
+      if(!bookmark){
+        throw {name: 'BNE'}
+      }
+
+      await Bookmark.destroy({
+        where: {
+          bookmark : mangaId, UserId: req.userLoginData.id
+        }
+      })
+
+      res.status(200).json({
+        message: `Bookmark ${bookmark.bookmark} deleted successfully`
+      })
     } catch (error) {
-      console.log(error);
+      next(error)
     }
   }
 }
