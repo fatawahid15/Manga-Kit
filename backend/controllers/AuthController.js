@@ -51,15 +51,26 @@ class AuthController {
           email: payload.email,
           password: "password_google",
         },
-        hooks: false
+        hooks: false,
       });
+
+      const profile = await Profile.findOne({
+        where: { UserId: user.id },
+      });
+
+      if (!profile) {
+        await Profile.create({
+          UserId: user.id,
+          username: user.email.split("@")[0],
+        });
+      }
 
       const access_token = signToken({
         id: user.id,
-        email: user.email
-      })
+        email: user.email,
+      });
 
-      res.status(200).json({access_token})
+      res.status(200).json({ access_token });
     } catch (error) {
       console.log(error);
       next(error);
