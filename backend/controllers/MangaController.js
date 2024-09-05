@@ -152,6 +152,9 @@ class MangaController {
       const { mangaId } = req.params;
 
       const response = await axios.get(`${baseUrl}/manga/${mangaId}`, {
+        params: {
+          includes: ["cover_art"],
+        },
         headers: {
           "User-Agent": "Mozilla/5.0",
         },
