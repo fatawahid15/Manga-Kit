@@ -158,7 +158,7 @@ class MangaController {
   static async getMangaById(req, res, next) {
     try {
       const { mangaId } = req.params;
-
+  
       // Fetch manga data with cover art, tags, and author info
       const response = await axios.get(`${baseUrl}/manga/${mangaId}`, {
         params: {
@@ -168,13 +168,13 @@ class MangaController {
           "User-Agent": "Mozilla/5.0",
         },
       });
-
+  
       const mangaData = response.data.data;
-
+  
       if (!mangaData) {
-        throw { name: "NMF" };
+        throw { name: "NMF" }; // NMF: Not Manga Found (for example)
       }
-
+  
       // Fetching cover art with data-saver option (lower resolution)
       const coverArt = mangaData.relationships.find(
         (rel) => rel.type === "cover_art"
@@ -183,41 +183,43 @@ class MangaController {
       const coverUrl = coverFilename
         ? `${coverBaseUrl}/${mangaData.id}/${coverFilename}.256.jpg` // Using .256.jpg for lower resolution
         : null;
-
-      // Extract title and alternative titles
+  
+      // Extract main title and alternative titles
       const title =
-        manga.attributes.title.en ||
-        Object.values(manga.attributes.title)[0] ||
+        mangaData.attributes.title.en ||
+        Object.values(mangaData.attributes.title)[0] ||
         "Title not available";
-
+  
+      const altTitles = Object.values(mangaData.attributes.title);
+  
+      // Extract description with fallback to other languages
       const description =
-        manga.attributes.description.en ||
-        Object.values(manga.attributes.description)[0] ||
+        mangaData.attributes.description.en ||
+        Object.values(mangaData.attributes.description)[0] ||
         "No description available.";
-
+  
       // Extract genres (tags)
       const genres = mangaData.attributes.tags
         .filter((tag) => tag.attributes.group === "genre")
-        .map((tag) => tag.attributes.name.en);
-
+        .map((tag) => tag.attributes.name.en || Object.values(tag.attributes.name)[0]);
+  
       // Extract rating and description/synopsis
       const rating = mangaData.attributes.contentRating || "Not Rated";
-
+  
       // Extract authors and artists
       const authors = mangaData.relationships
         .filter((rel) => rel.type === "author" || rel.type === "artist")
         .map((rel) => rel.attributes.name);
-
+  
       // Extract the number of readers (using "popularity" or a similar metric)
-      const readersCount =
-        mangaData.attributes.followers || "No data on readers";
-
+      const readersCount = mangaData.attributes.followers || "No data on readers";
+  
       // Respond with the requested fields
       res.status(200).json({
         manga: {
           id: mangaData.id,
           title,
-          altTitle,
+          altTitles,
           genres,
           rating,
           description,
@@ -230,6 +232,7 @@ class MangaController {
       next(error);
     }
   }
+  
 
   static async getChaptersByMangaId(req, res, next) {
     try {
