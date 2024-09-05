@@ -10,41 +10,50 @@ class PubController {
       const limit = parseInt(req.query.limit) || 10;
       let page = parseInt(req.query.page) || 1;
       const offset = (page - 1) * limit;
-  
+
       const response = await axios.get(`${baseUrl}/manga`, {
         params: {
           title: searchQuery,
           limit,
           offset,
-          contentRating: ['safe'],
+          contentRating: ["safe"],
           includes: ["cover_art"],
         },
         headers: {
           "User-Agent": "Mozilla/5.0",
         },
       });
-  
+
       const mangaList = response.data.data.map((manga) => {
         const coverArt = manga.relationships.find(
           (rel) => rel.type === "cover_art"
         );
         const coverFilename = coverArt ? coverArt.attributes.fileName : null;
         const coverUrl = coverFilename
-          ? `${coverBaseUrl}/${manga.id}/${coverFilename}.256.jpg` // Using lower resolution (256px width)
+          ? `${coverBaseUrl}/${manga.id}/${coverFilename}.256.jpg`
           : null;
-  
+
+        const title =
+          manga.attributes.title.en ||
+          Object.values(manga.attributes.title)[0] ||
+          "Title not available";
+
+        const description =
+          manga.attributes.description.en ||
+          Object.values(manga.attributes.description)[0] ||
+          "No description available.";
+
         return {
           id: manga.id,
-          title: manga.attributes.title.en || "Title not available",
-          description:
-            manga.attributes.description.en || "No description available.",
-          coverUrl: coverUrl, // Lower resolution cover URL
+          title: title,
+          description: description,
+          coverUrl: coverUrl,
         };
       });
-  
+
       const totalResults = response.data.total;
       const totalPages = Math.ceil(totalResults / limit);
-  
+
       res.status(200).json({
         mangas: mangaList,
         pagination: {

@@ -39,7 +39,7 @@ class MangaController {
           title: manga.attributes.title.en || "Title not available",
           description:
             manga.attributes.description.en || "No description available.",
-          coverUrl: coverUrl, // Lower resolution cover URL
+          coverUrl: coverUrl, 
         };
       });
   
