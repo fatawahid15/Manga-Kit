@@ -100,11 +100,20 @@ class MangaController {
           ? `${coverBaseUrl}/${manga.id}/${coverFilename}.256.jpg`
           : null;
 
+          const title =
+          manga.attributes.title.en ||
+          Object.values(manga.attributes.title)[0] ||
+          "Title not available";
+
+        const description =
+          manga.attributes.description.en ||
+          Object.values(manga.attributes.description)[0] ||
+          "No description available.";
+
         return {
           id: manga.id,
-          title: manga.attributes.title.en || "Title not available",
-          description:
-            manga.attributes.description.en || "No description available.",
+          title,
+          description,
           coverUrl: coverUrl, // Lower resolution cover URL
         };
       });
