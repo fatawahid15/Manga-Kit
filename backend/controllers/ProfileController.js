@@ -13,8 +13,7 @@ class ProfileController {
         profile,
       });
     } catch (error) {
-      console.error("Error fetching profile:", error.message);
-      res.status(500).json({ message: "Internal server error" });
+      next(error)
     }
   }
 
@@ -35,8 +34,7 @@ class ProfileController {
         profile,
       });
     } catch (error) {
-      console.error("Error updating profile:", error.message);
-      res.status(500).json({ message: "Internal server error" });
+      next(error)
     }
   }
 
@@ -55,8 +53,7 @@ class ProfileController {
         profile,
       });
     } catch (error) {
-      console.error("Error deleting bio:", error.message);
-      res.status(500).json({ message: "Internal server error" });
+      next(error)
     }
   }
 
@@ -75,8 +72,7 @@ class ProfileController {
         profile,
       });
     } catch (error) {
-      console.error("Error deleting image:", error.message);
-      res.status(500).json({ message: "Internal server error" });
+      next(error)
     }
   }
 
@@ -107,8 +103,7 @@ class ProfileController {
         profile,
       });
     } catch (error) {
-      console.error("Error updating profile image:", error.message);
-      res.status(500).json({ message: "Internal server error" });
+      next(error)
     }
   }
 
@@ -122,8 +117,7 @@ class ProfileController {
         profile,
       });
     } catch (error) {
-      console.error("Error fetching profile by ID:", error.message);
-      res.status(500).json({ message: "Internal server error" });
+      next(error)
     }
   }
 
@@ -145,8 +139,7 @@ class ProfileController {
 
       res.status(200).json({ profiles });
     } catch (error) {
-      console.error("Error fetching profiles:", error.message);
-      res.status(500).json({ message: "Internal server error" });
+      next(error)
     }
   }
 
