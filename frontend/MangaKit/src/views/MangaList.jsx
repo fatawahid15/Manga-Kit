@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMangaAsync, setPage } from "../features/manga/manga-slice";
-import Card from "../component/card";
+import Card from "../component/Card";
 import { ToastContainer } from "react-toastify";
 
 export default function MangaList() {
