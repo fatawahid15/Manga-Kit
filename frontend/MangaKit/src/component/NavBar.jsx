@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AskAi from "./AskAi"; 
+import AskAi from "./AskAi";
 import axios from "axios";
 
 export default function NavBar({ url }) {
@@ -8,26 +8,28 @@ export default function NavBar({ url }) {
   const navigate = useNavigate();
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiResponse, setAiResponse] = useState("");
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
 
   const handleLogout = () => {
     localStorage.clear();
     navigate("/login");
   };
 
-
   const formatAiResponse = (response) => {
-    let formattedResponse = response.replace(/\n/g, "<br>"); 
-    formattedResponse = formattedResponse.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-    return formattedResponse
+    let formattedResponse = response.replace(/\n/g, "<br>");
+    formattedResponse = formattedResponse.replace(
+      /\*\*(.*?)\*\*/g,
+      "<strong>$1</strong>"
+    );
+    return formattedResponse;
   };
 
   const handleAiSubmit = async (question) => {
     setLoading(true);
     try {
       const res = await axios.post(`${url}/pub/chat`, { question });
-      const formattedResponse = formatAiResponse(res.data.answer); 
-      setAiResponse(formattedResponse); 
+      const formattedResponse = formatAiResponse(res.data.answer);
+      setAiResponse(formattedResponse);
     } catch (error) {
       console.error("Error submitting AI question", error);
       setAiResponse("Failed to get AI response. Please try again later.");
@@ -36,7 +38,7 @@ export default function NavBar({ url }) {
   };
 
   const resetAiResponse = () => {
-    setAiResponse(""); 
+    setAiResponse("");
   };
 
   return (
@@ -94,7 +96,10 @@ export default function NavBar({ url }) {
         <>
           <div className="navbar bg-orange-500">
             <div className="navbar-start">
-              <a className="btn btn-ghost text-xl text-white" onClick={() => navigate("/")}>
+              <a
+                className="btn btn-ghost text-xl text-white"
+                onClick={() => navigate("/")}
+              >
                 Home
               </a>
             </div>
@@ -111,7 +116,10 @@ export default function NavBar({ url }) {
               </ul>
             </div>
             <div className="navbar-end">
-              <button className="btn btn-ghost text-xl text-white font-medium" onClick={() => navigate("/login")}>
+              <button
+                className="btn btn-ghost text-xl text-white font-medium"
+                onClick={() => navigate("/login")}
+              >
                 Login
               </button>
             </div>

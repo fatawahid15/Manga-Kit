@@ -1,6 +1,6 @@
 import { createBrowserRouter, redirect } from "react-router-dom";
 import MangaList from "../views/MangaList";
-import BaseLayout from "../Layout/BaseLayout";
+import BaseLayout from "../views/BaseLayout"
 import LoginPage from "../views/LoginPage";
 import MangaDetail from "../views/MangaDetail";
 import ReadManga from "../views/ReadManga";
@@ -11,7 +11,7 @@ const url = "https://mangakit.daseas.cloud";
 
 const router = createBrowserRouter([
   {
-    element: <BaseLayout url={url}/>,
+    element: <BaseLayout url={url} />,
     loader: () => {
       return null;
     },
@@ -23,30 +23,30 @@ const router = createBrowserRouter([
     ],
   },
   {
-    element: <BaseLayout url={url}/>,
+    element: <BaseLayout url={url} />,
     loader: () => {
       if (!localStorage.getItem("access_token")) {
         return redirect("/login");
       }
-      return null
+      return null;
     },
     children: [
       {
-        path: ':id',
-        element: <MangaDetail url={url}/>
+        path: ":id",
+        element: <MangaDetail url={url} />,
       },
       {
-        path: '/chapter/:id',
-        element: <ReadManga url={url}/>
+        path: "/chapter/:id",
+        element: <ReadManga url={url} />,
       },
       {
-        path: '/profile/me',
-        element: <YourProfile url={url}/>
-      }
-    ]
+        path: "/profile/me",
+        element: <YourProfile url={url} />,
+      },
+    ],
   },
   {
-    element: <BaseLayout url={url}/>,
+    element: <BaseLayout url={url} />,
     loader: () => {
       if (localStorage.getItem("access_token")) {
         return redirect("/");
@@ -59,9 +59,9 @@ const router = createBrowserRouter([
         element: <LoginPage url={url} />,
       },
       {
-        path: '/register',
-        element: <RegisterPage url={url}/>
-      }
+        path: "/register",
+        element: <RegisterPage url={url} />,
+      },
     ],
   },
 ]);

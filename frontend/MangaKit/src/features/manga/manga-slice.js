@@ -38,25 +38,32 @@ export const mangaSlice = createSlice({
   },
 });
 
-export const { pendingState, successState, failState, setPage } = mangaSlice.actions;
+export const { pendingState, sucpcessState, failState, setPage } =
+  mangaSlice.actions;
 
-// Async thunk to fetch manga with pagination and optional search query
-export const fetchMangaAsync = (searchQuery = "", page = 1) => async (dispatch) => {
-  try {
-    dispatch(pendingState());
+export const fetchMangaAsync =
+  (searchQuery = "", page = 1) =>
+  async (dispatch) => {
+    try {
+      dispatch(pendingState());
 
-    const { data } = await axios.get("https://mangakit.daseas.cloud/pub/manga/", {
-      params: {
-        limit: 21, 
-        page,
-        search: searchQuery,
-      },
-    });
+      const { data } = await axios.get(
+        "https://mangakit.daseas.cloud/pub/manga/",
+        {
+          params: {
+            limit: 21,
+            page,
+            search: searchQuery,
+          },
+        }
+      );
 
-    dispatch(successState({ mangas: data.mangas, pagination: data.pagination }));
-  } catch (error) {
-    dispatch(failState(error.message));
-  }
-};
+      dispatch(
+        successState({ mangas: data.mangas, pagination: data.pagination })
+      );
+    } catch (error) {
+      dispatch(failState(error.message));
+    }
+  };
 
 export default mangaSlice.reducer;

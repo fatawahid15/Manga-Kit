@@ -1,12 +1,19 @@
 import { useState, useEffect } from "react";
 
-export default function AskAi({ isOpen, onClose, onSubmit, aiResponse, loading, resetAiResponse }) {
+export default function AskAi({
+  isOpen,
+  onClose,
+  onSubmit,
+  aiResponse,
+  loading,
+  resetAiResponse,
+}) {
   const [question, setQuestion] = useState("");
 
   useEffect(() => {
     if (!isOpen) {
-      setQuestion("");  
-      resetAiResponse(); 
+      setQuestion("");
+      resetAiResponse();
     }
   }, [isOpen, resetAiResponse]);
 
@@ -28,7 +35,7 @@ export default function AskAi({ isOpen, onClose, onSubmit, aiResponse, loading, 
             onChange={(e) => setQuestion(e.target.value)}
             placeholder="Ask your question..."
             className="input input-bordered bg-gray-900 rounded-none text-white w-full mb-4"
-            disabled={loading} 
+            disabled={loading}
           />
 
           {loading ? (
@@ -42,10 +49,12 @@ export default function AskAi({ isOpen, onClose, onSubmit, aiResponse, loading, 
           ) : (
             aiResponse && (
               <div className="mt-4 p-6 bg-gray-900 rounded-lg shadow-md">
-                <h3 className="font-bold text-lg text-white mb-2">AI Response:</h3>
-                <p 
+                <h3 className="font-bold text-lg text-white mb-2">
+                  AI Response:
+                </h3>
+                <p
                   className="text-gray-200 bg-gray-800 p-4 rounded-md border border-gray-700"
-                  dangerouslySetInnerHTML={{ __html: aiResponse }} 
+                  dangerouslySetInnerHTML={{ __html: aiResponse }}
                 />
               </div>
             )
@@ -55,7 +64,7 @@ export default function AskAi({ isOpen, onClose, onSubmit, aiResponse, loading, 
             <button
               type="submit"
               className="btn rounded-none border-none bg-green-600 text-white"
-              disabled={loading} 
+              disabled={loading}
             >
               Submit
             </button>

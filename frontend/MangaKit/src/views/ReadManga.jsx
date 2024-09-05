@@ -7,7 +7,7 @@ export default function ReadManga({ url }) {
   const [manga, setManga] = useState(""); 
   const [loading, setLoading] = useState(true); 
   const [error, setError] = useState(""); 
-  const [showScrollButton, setShowScrollButton] = useState(false); // State for scroll button visibility
+  const [showScrollButton, setShowScrollButton] = useState(false);
 
   async function fetchManga() {
     try {

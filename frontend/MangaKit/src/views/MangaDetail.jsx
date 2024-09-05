@@ -14,7 +14,6 @@ export default function MangaDetail({ url }) {
   const [totalChapters, setTotalChapters] = useState(0);
   const navigate = useNavigate();
 
-  // Fetch Manga Details
   async function fetchManga() {
     try {
       const { data } = await axios.get(`${url}/manga/title/${id}`, {
@@ -28,7 +27,6 @@ export default function MangaDetail({ url }) {
     }
   }
 
-  // Fetch Manga Chapters
   async function fetchChapters() {
     try {
       const { data } = await axios.get(`${url}/manga/title/${id}/chapters`, {
@@ -47,7 +45,6 @@ export default function MangaDetail({ url }) {
     }
   }
 
-  // Add Bookmark function
   async function addBookmark() {
     try {
       await axios.post(
@@ -60,10 +57,8 @@ export default function MangaDetail({ url }) {
         }
       );
 
-      // Notify user of success
       toast.success("Manga bookmarked successfully!");
     } catch (error) {
-      // Handle specific backend error
       if (error.response && error.response.data.name === "AE") {
         toast.error("This manga is already bookmarked.");
       } else {
@@ -114,7 +109,7 @@ export default function MangaDetail({ url }) {
             <h1 className="text-4xl text-gray-900 font-bold">{manga.title}</h1>
             <button
               className="btn border-none shadow-sm rounded-none bg-orange-500 px-4 py-2 text-lg text-gray-900 hover:bg-orange-400 hover:text-white"
-              onClick={addBookmark} // Attach addBookmark function to the button
+              onClick={addBookmark} 
             >
               Bookmark
             </button>
