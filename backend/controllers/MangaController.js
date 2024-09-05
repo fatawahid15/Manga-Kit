@@ -152,10 +152,10 @@ class MangaController {
     try {
       const { mangaId } = req.params;
   
-      // Fetch manga data with cover art and necessary attributes
+      // Fetch manga data with cover art, tags, and author info
       const response = await axios.get(`${baseUrl}/manga/${mangaId}`, {
         params: {
-          includes: ["cover_art", "tag"], // includes cover art and genres (tags)
+          includes: ["cover_art", "tag", "author", "artist"], // include cover art, genres (tags), authors, and artists
         },
         headers: {
           "User-Agent": "Mozilla/5.0",
@@ -192,7 +192,15 @@ class MangaController {
       const rating = mangaData.attributes.contentRating || "Not Rated";
       const description = mangaData.attributes.description.en || "No description available.";
   
-      // Respond with only the specific fields
+      // Extract authors and artists
+      const authors = mangaData.relationships
+        .filter((rel) => rel.type === "author" || rel.type === "artist")
+        .map((rel) => rel.attributes.name);
+  
+      // Extract the number of readers (using "popularity" or a similar metric)
+      const readersCount = mangaData.attributes.followers || "No data on readers";
+  
+      // Respond with the requested fields
       res.status(200).json({
         manga: {
           id: mangaData.id,
@@ -202,12 +210,15 @@ class MangaController {
           rating,
           description,
           coverImage: coverUrl,
+          authors,
+          readersCount,
         },
       });
     } catch (error) {
       next(error);
     }
   }
+  
   
 
   static async getChaptersByMangaId(req, res, next) {
