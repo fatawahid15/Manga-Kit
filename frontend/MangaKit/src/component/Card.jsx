@@ -2,7 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Card({ mangaItem }) {
+  const navigate = useNavigate()
   const [isLoaded, setIsLoaded] = useState(false);
+
+  console.log(mangaItem);
 
   useEffect(() => {
     setTimeout(() => {
@@ -31,7 +34,7 @@ export default function Card({ mangaItem }) {
           </span>
           <p className="text-xs text-gray-900">ID: {mangaItem.id}</p>
         </div>
-        <button className="hover:bg-orange-400 text-white font- bg-orange-500 py-2 text-sm trsansition-colors duration-300">
+        <button className="hover:bg-orange-400 text-white font- bg-orange-500 py-2 text-sm trsansition-colors duration-300" onClick={() => navigate(`${mangaItem.id}`)}>
           Read
         </button>
       </div>
