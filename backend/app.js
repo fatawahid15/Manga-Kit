@@ -9,6 +9,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
 
+app.get('/', (req, res) => {
+    res.send('Backend MangaKit')
+})
+
 app.use("/", router); // Use the router for all routes
 
 module.exports = app;
