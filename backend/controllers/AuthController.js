@@ -39,47 +39,49 @@ class AuthController {
     try {
       const { token } = req.headers;
       const client = new OAuth2Client();
-
+  
       const ticket = await client.verifyIdToken({
         idToken: token,
         audience: process.env.GOOGLE_API,
       });
-
+  
       const payload = ticket.getPayload();
-
+  
       const [user, created] = await User.findOrCreate({
         where: {
           email: payload.email,
         },
         defaults: {
           email: payload.email,
-          password: "password_google",
+          password: "password_google", 
         },
         hooks: false,
       });
-
-      const profile = await Profile.findOne({
+  
+      let profile = await Profile.findOne({
         where: { UserId: user.id },
       });
-
+  
       if (!profile) {
-        await Profile.create({
+        profile = await Profile.create({
           UserId: user.id,
-          username: user.email.split("@")[0],
+          username: user.email.split("@")[0], 
         });
       }
-
+  
       const access_token = signToken({
         id: user.id,
         email: user.email,
       });
-
+  
       res.status(200).json({ access_token });
+  
     } catch (error) {
       console.log(error);
       next(error);
     }
   }
+  
 
   static async login(req, res, next) {
     try {
