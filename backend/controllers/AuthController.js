@@ -58,7 +58,7 @@ class AuthController {
         hooks: false,
       });
   
-      if (!user) {
+      if (!profile) {
         profile = await Profile.create({
           UserId: user.id,
           username: user.email.split("@")[0], 
