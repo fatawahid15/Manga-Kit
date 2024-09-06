@@ -42,7 +42,7 @@ class AuthController {
 
       const ticket = await client.verifyIdToken({
         idToken: token,
-        audience: process.env.GOOGLE_API, // Your Google Client ID
+        audience: process.env.GOOGLE_API, 
       });
 
       const payload = ticket.getPayload();
@@ -53,12 +53,11 @@ class AuthController {
         },
         defaults: {
           email: payload.email,
-          password: "password_google", // You can store a random password here or a hash
+          password: "password_google", 
         },
         hooks: false,
       });
 
-      // Find or create profile
       let profile = await Profile.findOne({ where: { UserId: user.id } });
 
       if (!profile) {
@@ -68,17 +67,15 @@ class AuthController {
         });
       }
 
-      // Sign the token with user info
       const access_token = signToken({
         id: user.id,
         email: user.email,
       });
 
-      // Return the access token to the client
       res.status(200).json({ access_token });
     } catch (error) {
       console.log(error);
-      next(error); // Ensure the error is passed to an error handler middleware
+      next(error); 
     }
   }
 
