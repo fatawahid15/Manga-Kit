@@ -58,11 +58,7 @@ class AuthController {
         hooks: false,
       });
   
-      let profile = await Profile.findOne({
-        where: { UserId: user.id },
-      });
-  
-      if (!profile) {
+      if (!user) {
         profile = await Profile.create({
           UserId: user.id,
           username: user.email.split("@")[0], 
