@@ -113,6 +113,10 @@ class ProfileController {
 
       const profile = await Profile.findByPk(id);
 
+      if(!profile){
+        throw {name: 'NPF'}
+      }
+
       res.status(200).json({
         profile,
       });

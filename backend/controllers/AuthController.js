@@ -9,6 +9,10 @@ class AuthController {
     try {
       const { email, password } = req.body;
 
+      if(!email || !password){
+        throw { name: "UNAUTHENTICATED" };
+      }
+
       await User.create({
         email,
         password: hash(password),
