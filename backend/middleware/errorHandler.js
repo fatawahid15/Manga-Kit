@@ -53,6 +53,11 @@ function errorHandler(error, req, res, next){
         message = 'No Manga Found'
     }
 
+    if(error.name == 'NPF'){
+      status = 404
+      message = 'Profile not found'
+  }
+
     if(error.name == 'AE'){
         status = 400
         message = 'Bookmark already exist'
